@@ -7,18 +7,14 @@ class User(AbstractUser):
     class Meta:
         ordering = ["-date_joined"]
 
-class TimeRange(models.Model):
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-
 class Event(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
     name = models.CharField(max_length=250)
     description = models.CharField(max_length=500)
-    time = models.ManyToManyField(TimeRange) 
+    time = models.CharField(max_length=250)
 
 class Available(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
     name = models.CharField(max_length=250)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    time = models.ManyToManyField(TimeRange) 
+    time = models.CharField(max_length=250)

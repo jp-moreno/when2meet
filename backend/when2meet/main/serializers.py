@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Event, TimeRange, Available
+from .models import User, Event, Available
 
 class UserSerialiazer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -19,13 +19,24 @@ class UserSerialiazer(serializers.HyperlinkedModelSerializer):
         return instance
 
 class EventSerializer(serializers.HyperlinkedModelSerializer):
+    owner = UserSerialiazer()
     class Meta:
         model = Event
+        fields = ["name", "description", "owner", "time"]
+        extra_kwargs = {
+            "owner": {"read_only": True},
+        }
 
-class TimeRangeSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = TimeRange
 
 class AvailableSerializer(serializers.HyperlinkedModelSerializer):
+    event = EventSerializer(required=False)
+    user = UserSerialiazer(required=False)
     class Meta:
-        model = Avialable
+        model = Available
+        fields = ["user", "name", "event", "time"]
+        extra_kwargs = {
+            "user": {"read_only": True},
+            "name": {"read_only": True},
+            "event": {"read_only": True},
+        }
+
