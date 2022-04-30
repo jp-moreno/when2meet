@@ -17,6 +17,8 @@ from .serializers import UserSerialiazer
 class UserView(APIView, LimitOffsetPagination):
     def get(self, request, format=None):
         users = User.objects.all()
+        if("user_id" in request.GET):
+            users = users.filter(id=request.GET["user_id"])
         results = self.paginate_queryset(users, request, view=self)
         serializer = UserSerialiazer(results, many=True)
         return self.get_paginated_response(serializer.data)
