@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Event, TimeRange, Available
 
 class UserSerialiazer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -10,7 +10,6 @@ class UserSerialiazer(serializers.HyperlinkedModelSerializer):
             "password": {"write_only": True},
         }
 
-    # https://stackoverflow.com/questions/27586095/why-isnt-my-django-user-models-password-hashed hasing password properly
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         instance = self.Meta.model(**validated_data)
@@ -18,3 +17,15 @@ class UserSerialiazer(serializers.HyperlinkedModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+class EventSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Event
+
+class TimeRangeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = TimeRange
+
+class AvailableSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Avialable
