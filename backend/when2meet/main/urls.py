@@ -14,7 +14,7 @@ urlpatterns = [
     path('users/', views.UserView.as_view(), name="users"),
     path('events/', views.EventView.as_view(), name="events"),
     path('available/', views.AvailableView.as_view(), name="available"),
-    path('attendees/', views.AvailableView.as_view(), name="attendees"),
+    path('attendees/', views.AttendeeViews.as_view(), name="attendees"),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ] 
