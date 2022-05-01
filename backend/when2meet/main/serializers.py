@@ -19,12 +19,13 @@ class UserSerialiazer(serializers.HyperlinkedModelSerializer):
         return instance
 
 class EventSerializer(serializers.HyperlinkedModelSerializer):
-    owner = UserSerialiazer()
+    owner = UserSerialiazer(required=False)
     class Meta:
         model = Event
-        fields = ["name", "description", "owner", "time"]
+        fields = ["name", "id", "description", "owner", "time"]
         extra_kwargs = {
             "owner": {"read_only": True},
+            "id": {"read_only": True},
         }
 
 

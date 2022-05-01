@@ -54,6 +54,11 @@ class EventView(APIView, LimitOffsetPagination):
 
         serializer = EventSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
+            time = request.data["time"]
+            if not validate(time):
+                print("bad time")
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
             serializer.save(owner=user)
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -86,6 +91,11 @@ class AvailableView(APIView, LimitOffsetPagination):
  
         serializer = AvailableSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
+            time = request.data["time"]
+            if not validate(time):
+                print("bad time")
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
             serializer.save(user=user, event=event)
             times = []
             avialables = Available.objects.filter(event=event)

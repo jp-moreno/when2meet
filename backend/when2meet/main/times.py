@@ -20,7 +20,6 @@ def calculateTime(times):
         if state[0] not in Avail_time_by_per:
             Avail_time_by_per[state[0]] = []
         Avail_time_by_per[state[0]].append(state[1])
-    print(times)
 
     Available_Times = ["00:00-24:00"]
     for per in Avail_time_by_per:
