@@ -143,3 +143,16 @@ class AvailableView(APIView, LimitOffsetPagination):
                 return Response(data=serializer.data, status=status.HTTP_201_CREATED)
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class AttendeeViews(APIView, LimitOffsetPagination):
+    def get(self, request, format=None):
+        if ("event_id" not in request.GET):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        event = Event.objects.filter(id=request.GET["event_id"])
+        if not event:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        event = event[0]
+        times = Available.objects.all(event=event)
+        results = self.paginate_queryset(times, request, view=self)
+        serializer = AvailableSerializer(results, many=True)
+        return self.get_paginated_response(serializer.data)
