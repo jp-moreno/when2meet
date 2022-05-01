@@ -48,20 +48,32 @@ class EventView(APIView, LimitOffsetPagination):
 
     def post(self, request, format=None):
         user = request.user
-        if(not user.id):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        user = User.objects.get(id=user.id)
+        if(not user.id and "username" not in request.data):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if(user.id):
+            user = User.objects.get(id=user.id)
 
-        serializer = EventSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            time = request.data["time"]
-            if not validate(time):
-                print("bad time")
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            serializer = EventSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                time = request.data["time"]
+                if not validate(time):
+                    print("bad time")
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            serializer.save(owner=user)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                serializer.save(owner=user)
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            serializer = EventSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                time = request.data["time"]
+                if not validate(time):
+                    print("bad time")
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+                serializer.save(anonowner=request.data["username"])
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AvailableView(APIView, LimitOffsetPagination):
     def get(self, request, format=None):
@@ -78,32 +90,56 @@ class AvailableView(APIView, LimitOffsetPagination):
 
     def post(self, request, format=None):
         user = request.user
-        if(not user.id):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        user = User.objects.get(id=user.id)
-
         if("event_id" not in request.data):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        event = Event.objects.filter(id=request.data["event_id"])
-        if not event:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        event = event[0]
- 
-        serializer = AvailableSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            time = request.data["time"]
-            if not validate(time):
-                print("bad time")
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+        if(not user.id and "username" not in request.data):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if(user.id):
+            user = User.objects.get(id=user.id)
 
-            serializer.save(user=user, event=event)
-            times = []
-            avialables = Available.objects.filter(event=event)
-            for a in avialables:
-                times.append(a.time)
-            new_time = calculateTime(times)
-            event.time = new_time
-            event.save()
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            event = Event.objects.filter(id=request.data["event_id"])
+            if not event:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            event = event[0]
+    
+            serializer = AvailableSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                time = request.data["time"]
+                if not validate(time):
+                    print("bad time")
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+                serializer.save(user=user, event=event)
+                times = []
+                avialables = Available.objects.filter(event=event)
+                for a in avialables:
+                    times.append(a.time)
+                new_time = calculateTime(times)
+                event.time = new_time
+                event.save()
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            event = Event.objects.filter(id=request.data["event_id"])
+            if not event:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            event = event[0]
+    
+            serializer = AvailableSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                time = request.data["time"]
+                if not validate(time):
+                    print("bad time")
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+                serializer.save(anonuser=request.data["username"], event=event)
+                times = []
+                avialables = Available.objects.filter(event=event)
+                for a in avialables:
+                    times.append(a.time)
+                new_time = calculateTime(times)
+                event.time = new_time
+                event.save()
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
