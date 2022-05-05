@@ -8,11 +8,12 @@ class User(AbstractUser):
         ordering = ["-date_joined"]
 
 class Event(models.Model):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True) 
+    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True) 
     anonowner = models.CharField(max_length=50, null=True, blank=True)
     name = models.CharField(max_length=250)
-    description = models.CharField(max_length=500)
+    # description = models.CharField(max_length=500)
     time = models.CharField(max_length=250)
+    possible_time = models.CharField(max_length=250)
 
 class Available(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True) 
